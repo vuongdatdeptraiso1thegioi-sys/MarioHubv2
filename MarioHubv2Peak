@@ -1,0 +1,282 @@
+
+-- ⚡ MARIO HUB NEON X v2
+-- Single-file UI
+-- Dùng trong trải nghiệm Roblox do bạn sở hữu
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+local pg = player:WaitForChild("PlayerGui")
+
+local old = pg:FindFirstChild("MarioHubNeonX")
+if old then old:Destroy() end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "MarioHubNeonX"
+gui.ResetOnSpawn = false
+gui.Parent = pg
+
+local CYAN = Color3.fromRGB(0, 225, 255)
+local PURPLE = Color3.fromRGB(150, 80, 255)
+local DARK = Color3.fromRGB(14, 17, 32)
+local PANEL = Color3.fromRGB(27, 32, 52)
+
+local function create(class, props, parent)
+    local obj = Instance.new(class)
+    for k, v in pairs(props) do
+        obj[k] = v
+    end
+    obj.Parent = parent
+    return obj
+end
+
+local function decorate(obj, color, radius)
+    create("UICorner", {
+        CornerRadius = UDim.new(0, radius or 12)
+    }, obj)
+
+    create("UIStroke", {
+        Color = color or CYAN,
+        Thickness = 1.5,
+        Transparency = 0.1
+    }, obj)
+end
+
+-- Drag support: mouse + touch
+local function draggable(obj, handle)
+    handle = handle or obj
+
+    local dragging = false
+    local startPosition
+    local originalPosition
+
+    handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            startPosition = input.Position
+            originalPosition = obj.Position
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(input)
+        if not dragging then return end
+
+        if input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch then
+            local delta = input.Position - startPosition
+
+            obj.Position = UDim2.new(
+                originalPosition.X.Scale,
+                originalPosition.X.Offset + delta.X,
+                originalPosition.Y.Scale,
+                originalPosition.Y.Offset + delta.Y
+            )
+        end
+    end)
+
+    UIS.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+end
+
+-- Main window
+local main = create("Frame", {
+    Name = "Main",
+    Size = UDim2.fromOffset(340, 370),
+    Position = UDim2.new(0.5, -170, 0.5, -185),
+    BackgroundColor3 = DARK,
+    BorderSizePixel = 0
+}, gui)
+
+decorate(main, CYAN, 18)
+draggable(main)
+
+create("TextLabel", {
+    Size = UDim2.new(1, -60, 0, 48),
+    Position = UDim2.fromOffset(16, 7),
+    BackgroundTransparency = 1,
+    Text = "⚡ MARIO HUB",
+    TextColor3 = CYAN,
+    TextSize = 25,
+    Font = Enum.Font.GothamBlack,
+    TextXAlignment = Enum.TextXAlignment.Left
+}, main)
+
+create("TextLabel", {
+    Size = UDim2.new(1, -32, 0, 25),
+    Position = UDim2.fromOffset(16, 52),
+    BackgroundTransparency = 1,
+    Text = "NEON X  •  VERSION 2",
+    TextColor3 = PURPLE,
+    TextSize = 13,
+    Font = Enum.Font.GothamBold,
+    TextXAlignment = Enum.TextXAlignment.Left
+}, main)
+
+local welcome = create("Frame", {
+    Name = "Welcome",
+    Position = UDim2.fromOffset(14, 88),
+    Size = UDim2.new(1, -28, 0, 195),
+    BackgroundColor3 = PANEL,
+    BorderSizePixel = 0
+}, main)
+
+decorate(welcome, PURPLE, 14)
+
+create("TextLabel", {
+    Size = UDim2.new(1, -24, 1, -24),
+    Position = UDim2.fromOffset(12, 12),
+    BackgroundTransparency = 1,
+    Text = "WELCOME TO MARIO HUB!\n\nYour next adventure starts here.",
+    TextColor3 = Color3.fromRGB(235, 240, 255),
+    TextSize = 18,
+    Font = Enum.Font.GothamBold,
+    TextWrapped = true
+}, welcome)
+
+local features = create("ScrollingFrame", {
+    Name = "Features",
+    Position = UDim2.fromOffset(14, 88),
+    Size = UDim2.new(1, -28, 0, 220),
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    ScrollBarThickness = 4,
+    ScrollBarImageColor3 = CYAN,
+    CanvasSize = UDim2.new(0, 0, 0, 0),
+    Visible = false
+}, main)
+
+local layout = create("UIListLayout", {
+    Padding = UDim.new(0, 8),
+    SortOrder = Enum.SortOrder.LayoutOrder
+}, features)
+
+local featureNames = {
+    "God Mode",
+    "Fly",
+    "Speed Boost",
+    "Infinite Jump",
+    "Teleport",
+    "Player HUD",
+    "Anti Ragdoll"
+}
+
+for index, featureName in ipairs(featureNames) do
+    local row = create("Frame", {
+        Size = UDim2.new(1, -8, 0, 40),
+        BackgroundColor3 = PANEL,
+        BorderSizePixel = 0,
+        LayoutOrder = index
+    }, features)
+
+    decorate(row, PURPLE, 10)
+
+    create("TextLabel", {
+        Position = UDim2.fromOffset(10, 0),
+        Size = UDim2.new(1, -90, 1, 0),
+        BackgroundTransparency = 1,
+        Text = featureName,
+        TextColor3 = Color3.new(1, 1, 1),
+        TextSize = 14,
+        Font = Enum.Font.GothamSemibold,
+        TextXAlignment = Enum.TextXAlignment.Left
+    }, row)
+
+    local enabled = false
+
+    local button = create("TextButton", {
+        Size = UDim2.fromOffset(62, 28),
+        Position = UDim2.new(1, -72, 0.5, -14),
+        BackgroundColor3 = Color3.fromRGB(45, 48, 65),
+        Text = "OFF",
+        TextColor3 = Color3.new(1, 1, 1),
+        TextSize = 12,
+        Font = Enum.Font.GothamBold
+    }, row)
+
+    decorate(button, CYAN, 8)
+
+    button.Activated:Connect(function()
+        enabled = not enabled
+        button.Text = enabled and "ON" or "OFF"
+        button.BackgroundColor3 = enabled
+            and Color3.fromRGB(0, 110, 125)
+            or Color3.fromRGB(45, 48, 65)
+    end)
+end
+
+local function updateCanvas()
+    features.CanvasSize = UDim2.new(
+        0, 0, 0, layout.AbsoluteContentSize.Y + 8
+    )
+end
+
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvas)
+updateCanvas()
+
+-- Welcome <-> Features
+local page = "Welcome"
+
+local pageButton = create("TextButton", {
+    Name = "PageButton",
+    Position = UDim2.new(0, 14, 1, -58),
+    Size = UDim2.new(1, -28, 0, 42),
+    BackgroundColor3 = Color3.fromRGB(66, 43, 130),
+    Text = "✦  FEATURES",
+    TextColor3 = Color3.new(1, 1, 1),
+    TextSize = 15,
+    Font = Enum.Font.GothamBlack
+}, main)
+
+decorate(pageButton, PURPLE, 11)
+
+pageButton.Activated:Connect(function()
+    if page == "Welcome" then
+        page = "Features"
+        welcome.Visible = false
+        features.Visible = true
+        pageButton.Text = "↩  BACK TO WELCOME"
+    else
+        page = "Welcome"
+        welcome.Visible = true
+        features.Visible = false
+        pageButton.Text = "✦  FEATURES"
+    end
+end)
+
+-- Floating ON/OFF button
+local toggle = create("TextButton", {
+    Name = "MenuToggle",
+    Size = UDim2.fromOffset(120, 46),
+    Position = UDim2.new(0, 18, 0.5, -23),
+    BackgroundColor3 = DARK,
+    Text = "⚡ MENU: ON",
+    TextColor3 = CYAN,
+    TextSize = 13,
+    Font = Enum.Font.GothamBlack
+}, gui)
+
+decorate(toggle, CYAN, 13)
+draggable(toggle)
+
+toggle.Activated:Connect(function()
+    main.Visible = not main.Visible
+    toggle.Text = main.Visible and "⚡ MENU: ON" or "⚡ MENU: OFF"
+end)
+
+create("TextLabel", {
+    Name = "Footer",
+    Position = UDim2.new(0, 0, 1, -18),
+    Size = UDim2.new(1, 0, 0, 14),
+    BackgroundTransparency = 1,
+    Text = "MARIO HUB  •  NEON EDITION",
+    TextColor3 = Color3.fromRGB(125, 140, 170),
+    TextSize = 9,
+    Font = Enum.Font.Gotham
+}, main)
+
+print("[Mario Hub] UI loaded successfully!")
