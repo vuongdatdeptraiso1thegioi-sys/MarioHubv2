@@ -1,0 +1,194 @@
+
+-- MARIO HUB NEON X v2
+-- GUI demo: menu chính + nút ON/OFF kéo được
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+local old = player.PlayerGui:FindFirstChild("MarioNeonUI")
+if old then old:Destroy() end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "MarioNeonUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local function corner(obj, radius)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, radius)
+    c.Parent = obj
+end
+
+local function outline(obj, color, thickness)
+    local s = Instance.new("UIStroke")
+    s.Color = color
+    s.Thickness = thickness or 1.5
+    s.Transparency = 0.12
+    s.Parent = obj
+end
+
+local cyan = Color3.fromRGB(0, 225, 255)
+local purple = Color3.fromRGB(145, 75, 255)
+local dark = Color3.fromRGB(15, 18, 34)
+
+-- Kéo được bằng chuột hoặc cảm ứng
+local function makeDraggable(obj, handle)
+    handle = handle or obj
+    local dragging, start, origin, input
+
+    handle.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1
+        or i.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            start = i.Position
+            origin = obj.Position
+            input = i
+
+            i.Changed:Connect(function()
+                if i.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(i)
+        if dragging and (
+            i.UserInputType == Enum.UserInputType.MouseMovement
+            or i.UserInputType == Enum.UserInputType.Touch
+        ) then
+            local delta = i.Position - start
+            obj.Position = UDim2.new(
+                origin.X.Scale, origin.X.Offset + delta.X,
+                origin.Y.Scale, origin.Y.Offset + delta.Y
+            )
+        end
+    end)
+end
+
+-- Menu chính
+local main = Instance.new("Frame")
+main.Name = "MainMenu"
+main.Size = UDim2.fromOffset(300, 270)
+main.Position = UDim2.new(0.5, -150, 0.5, -135)
+main.BackgroundColor3 = dark
+main.BorderSizePixel = 0
+main.Parent = gui
+corner(main, 14)
+outline(main, cyan, 2)
+makeDraggable(main)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -48, 0, 48)
+title.Position = UDim2.fromOffset(12, 5)
+title.BackgroundTransparency = 1
+title.Text = "⚡ MARIO HUB"
+title.TextColor3 = cyan
+title.Font = Enum.Font.GothamBlack
+title.TextSize = 23
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = main
+
+local subtitle = Instance.new("TextLabel")
+subtitle.Position = UDim2.fromOffset(14, 48)
+subtitle.Size = UDim2.new(1, -28, 0, 24)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = "NEON X  •  VERSION 2"
+subtitle.TextColor3 = purple
+subtitle.Font = Enum.Font.GothamBold
+subtitle.TextSize = 12
+subtitle.TextXAlignment = Enum.TextXAlignment.Left
+subtitle.Parent = main
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(32, 32)
+close.Position = UDim2.new(1, -42, 0, 10)
+close.Text = "×"
+close.TextSize = 25
+close.TextColor3 = Color3.new(1, 1, 1)
+close.BackgroundColor3 = Color3.fromRGB(65, 35, 95)
+close.Font = Enum.Font.GothamBold
+close.Parent = main
+corner(close, 9)
+
+local line = Instance.new("Frame")
+line.Position = UDim2.fromOffset(12, 78)
+line.Size = UDim2.new(1, -24, 0, 2)
+line.BackgroundColor3 = cyan
+line.BorderSizePixel = 0
+line.Parent = main
+
+local info = Instance.new("TextLabel")
+info.Position = UDim2.fromOffset(14, 95)
+info.Size = UDim2.new(1, -28, 0, 65)
+info.BackgroundColor3 = Color3.fromRGB(24, 29, 49)
+info.TextColor3 = Color3.fromRGB(225, 240, 255)
+info.Text = "Welcome to Mario Hub!\nYour next adventure starts here."
+info.Font = Enum.Font.GothamMedium
+info.TextSize = 13
+info.Parent = main
+corner(info, 10)
+outline(info, purple, 1)
+
+local status = Instance.new("TextLabel")
+status.Position = UDim2.fromOffset(14, 174)
+status.Size = UDim2.new(1, -28, 0, 28)
+status.BackgroundTransparency = 1
+status.Text = "● SYSTEM READY"
+status.TextColor3 = Color3.fromRGB(90, 255, 180)
+status.TextSize = 12
+status.Font = Enum.Font.GothamBold
+status.TextXAlignment = Enum.TextXAlignment.Left
+status.Parent = main
+
+local hide = Instance.new("TextButton")
+hide.Position = UDim2.fromOffset(14, 210)
+hide.Size = UDim2.new(1, -28, 0, 42)
+hide.Text = "✦  HIDE MENU"
+hide.TextColor3 = Color3.new(1, 1, 1)
+hide.TextSize = 14
+hide.Font = Enum.Font.GothamBold
+hide.BackgroundColor3 = Color3.fromRGB(65, 45, 130)
+hide.Parent = main
+corner(hide, 10)
+outline(hide, purple, 1.5)
+
+-- Nút ON/OFF nổi
+local toggle = Instance.new("TextButton")
+toggle.Name = "MenuToggle"
+toggle.Size = UDim2.fromOffset(105, 44)
+toggle.Position = UDim2.new(0, 18, 0.5, -22)
+toggle.BackgroundColor3 = Color3.fromRGB(18, 35, 55)
+toggle.Text = "⚡ MENU: ON"
+toggle.TextColor3 = cyan
+toggle.TextSize = 13
+toggle.Font = Enum.Font.GothamBlack
+toggle.Parent = gui
+corner(toggle, 12)
+outline(toggle, cyan, 2)
+makeDraggable(toggle)
+
+local function setMenu(enabled)
+    main.Visible = enabled
+    toggle.Text = enabled and "⚡ MENU: ON" or "⚡ MENU: OFF"
+    toggle.TextColor3 = enabled and cyan
+        or Color3.fromRGB(180, 180, 195)
+    toggle.BackgroundColor3 = enabled
+        and Color3.fromRGB(18, 35, 55)
+        or Color3.fromRGB(35, 35, 48)
+end
+
+toggle.Activated:Connect(function()
+    setMenu(not main.Visible)
+end)
+
+hide.Activated:Connect(function()
+    setMenu(false)
+end)
+
+close.Activated:Connect(function()
+    setMenu(false)
+end)
+
+print("Mario Hub Neon X v2 UI loaded!")
